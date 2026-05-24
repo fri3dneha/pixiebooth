@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pixiebooth</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+
+  /* MAIN COLORS */
+  --surface: #F6E7A1;      /* butter yellow */
+  --surface2: #c8ebff;     /* baby blue */
+
+  /* BACKGROUND */
+  --bg: #FFF9E8;
+
+  /* TEXT */
+  --text: #070707;
+
+  /* BUTTONS */
+  --button-bg: #bcdef3;    /* baby blue */
+  --button-text: #FFF7C2;  /* soft butter yellow text */
+  --border: #b3cbd8;
+    --sidebar-w: 240px;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+
+    background-image:
+    url('/static/images/surface-bg.jpg');
+
+    background-size: cover;
+
+    background-position: center;
+
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 12px;
+    gap: 6px;
+    flex-shrink: 0;
+    overflow-y: auto;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    .logo {
+  color: rgb(17, 17, 17);
+    }
+    padding: 8px 10px 18px;
+    letter-spacing: 0.5px;
+  }
+  .logo span { color: var(--accent3); font-style: italic; }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: left;
+    width: 100%;
+  }
+  .nav-btn:hover { background: var(--surface2); color: var(--text); }
+  .nav-btn.active { background: linear-gradient(135deg, rgba(232,160,200,0.18), rgba(167,139,250,0.12)); color: var(--accent); border: 1px solid rgba(232,160,200,0.25); }
+  .nav-btn .icon { font-size: 18px; width: 22px; text-align: center; }
+
+  .divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+  /* ── PANEL (right of sidebar) ── */
+  .panel {
+    width: 340px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 14px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    display: none;
+  }
+  .panel.open { display: block; }
+  .panel h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  /* Layout grid */
+  .layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .layout-option {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 6px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    transition: all 0.15s;
+    background: var(--surface2);
+  }
+  .layout-option:hover, .layout-option.selected { border-color: var(--accent); color: var(--accent); background: rgba(232,160,200,0.08); }
+  .layout-option .preview { font-size: 26px; margin-bottom: 5px; }
+
+  /* Filters */
+  .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .filter-btn {
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 4px;
+    cursor: pointer;
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 11.5px;
+    text-align: center;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .filter-btn:hover, .filter-btn.active { border-color: var(--accent2); color: var(--accent2); background: rgba(167,139,250,0.1); }
+  .filter-dot { width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 5px; }
+
+  /* Stickers */
+  .sticker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .sticker-item {
+    font-size: 26px;
+    text-align: center;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 8px;
+    transition: all 0.15s;
+    background: var(--surface2);
+    border: 1px solid transparent;
+    user-select: none;
+  }
+  .sticker-item:hover { transform: scale(1.25); border-color: var(--accent3); background: rgba(249,200,106,0.1); }
+
+  /* Text panel */
+  .text-panel input, .text-panel textarea, .text-panel select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 9px 11px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    margin-bottom: 10px;
+    outline: none;
+    resize: none;
+    transition: border-color 0.15s;
+  }
+  .text-panel input:focus, .text-panel textarea:focus, .text-panel select:focus { border-color: var(--accent); }
+  .text-panel label { font-size: 11px; color: var(--muted); margin-bottom: 4px; display: block; }
+  .color-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .color-swatch {
+    width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: all 0.15s;
+  }
+  .color-swatch:hover, .color-swatch.selected { border-color: white; transform: scale(1.2); }
+
+  /* Upload */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 30px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .upload-zone:hover { border-color: var(--accent); color: var(--accent); background: rgba(232,160,200,0.05); }
+  .upload-zone .up-icon { font-size: 32px; margin-bottom: 8px; }
+  #fileInput { display: none; }
+
+  /* ── MAIN CANVAS AREA ── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 24px;
+    background: radial-gradient(ellipse at 60% 40%, rgba(167,139,250,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(232,160,200,0.05) 0%, transparent 50%),
+                var(--bg);
+    position: relative;
+    overflow: hidden;
+
+    background-image: url('/static/images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+  }
+
+  .canvas-wrapper {
+    position: relative;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 48px rgba(0,0,0,0.5);
+    overflow: hidden;
+    cursor: crosshair;
+  }
+
+  #mainCanvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* Camera overlay */
+  #cameraVideo {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: none;
+    pointer-events: none;
+  }
+
+  /* Bottom controls */
+  .bottom-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-ghost { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger { background: var(--surface); border: 1px solid #e05;color: #e05; }
+  .btn-danger:hover { background: rgba(238,0,85,0.1); }
+
+  .cam-btn {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; cursor: pointer; font-size: 24px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(232,160,200,0.4);
+    transition: all 0.18s;
+  }
+  .cam-btn:hover { transform: scale(1.08); }
+
+  /* Draggable items on canvas */
+  .canvas-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .canvas-overlay.active { pointer-events: all; }
+
+  .draggable-item {
+    position: absolute;
+    cursor: grab;
+    user-select: none;
+    display: inline-block;
+    border: 1px dashed transparent;
+    padding: 2px;
+    transition: border-color 0.15s;
+  }
+  .draggable-item:hover { border-color: rgba(232,160,200,0.5); border-radius: 4px; }
+  .draggable-item:active { cursor: grabbing; }
+  .draggable-item .del-item {
+    position: absolute; top: -8px; right: -8px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #e05; border: none; cursor: pointer;
+    font-size: 10px; color: #fff; display: none;
+    align-items: center; justify-content: center; line-height: 1;
+  }
+  .draggable-item:hover .del-item { display: flex; }
+
+  /* Status bar */
+  .status { font-size: 11px; color: var(--muted); }
+
+  /* Layout frames */
+  .layout-strip { display: flex; flex-direction: column; gap: 0; }
+  .layout-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+
+  /* section label */
+  .panel-section { font-size: 11px; color: white; text-transform: uppercase; letter-spacing: 1px; margin: 12px 0 8px; }
+
+  /* Add text btn */
+  .add-text-btn {
+    width: 100%; padding: 10px; background: linear-gradient(135deg, rgba(232,160,200,0.15), rgba(167,139,250,0.1));
+    border: 1px solid rgba(232,160,200,0.3); border-radius: 8px;
+    color: var(--accent); font-family: 'DM Sans', sans-serif;
+    font-size: 13px; cursor: pointer; margin-top: 4px;
+    transition: all 0.15s;
+  }
+  .add-text-btn:hover { background: rgba(232,160,200,0.22); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* font size slider */
+  input[type=range] {
+    width: 100%; accent-color: var(--accent);
+    background: transparent; margin-bottom: 10px;
+  }
+
+  .strip-label {
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    padding: 4px;
+    background: var(--surface2);
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">pixie<span>booth</span></div>
+
+  <button class="nav-btn active" onclick="openPanel('layout', this)">
+    <span class="icon"></span> layout
+  </button>
+  <button class="nav-btn" onclick="openPanel('upload', this)">
+    <span class="icon"></span> upload
+  </button>
+  <button class="nav-btn" onclick="openPanel('filter', this)">
+    <span class="icon"></span> filters
+  </button>
+  <button class="nav-btn" onclick="openPanel('sticker', this)">
+    <span class="icon"></span> stickers
+  </button>
+  <button class="nav-btn" onclick="openPanel('text', this)">
+    <span class="icon"></span> text
+  </button>
+
+  <div class="divider"></div>
+
+  <button class="nav-btn" onclick="clearCanvas()">
+    <span class="icon"></span> clear all
+  </button>
+  <button class="nav-btn" onclick="downloadCanvas()">
+    <span class="icon"></span> download
+  </button>
+</div>
+
+<!-- PANELS -->
+<!-- Layout Panel -->
+<div class="panel open" id="panel-layout">
+  <h3>Choose Layout</h3>
+  <div class="layout-grid">
+    <div class="layout-option selected" onclick="setLayout('single', this)">
+      <div class="preview">⬜</div>Single
+    </div>
+    <div class="layout-option" onclick="setLayout('strip3', this)">
+      <div class="preview">⬛⬛⬛</div>Strip 3
+    </div>
+    <div class="layout-option" onclick="setLayout('strip4', this)">
+      <div class="preview">▪️▪️▪️▪️</div>Strip 4
+    </div>
+    <div class="layout-option" onclick="setLayout('grid4', this)">
+      <div class="preview">⊞</div>Grid 2×2
+    </div>
+    <div class="layout-option" onclick="setLayout('wide', this)">
+      <div class="preview">▬</div>Wide Banner
+    </div>
+    <div class="layout-option" onclick="setLayout('polaroid', this)">
+      <div class="preview">🖼</div>Polaroid
+    </div>
+  </div>
+
+  <div class="panel-section">Background</div>
+  <div class="color-row">
+    <div class="color-swatch selected" style="background:#fff" onclick="setBg('#fff', this)"></div>
+    <div class="color-swatch" style="background:#0e0c0f" onclick="setBg('#0e0c0f', this)"></div>
+    <div class="color-swatch" style="background:#fce4ec" onclick="setBg('#fce4ec', this)"></div>
+    <div class="color-swatch" style="background:#e8f5e9" onclick="setBg('#e8f5e9', this)"></div>
+    <div class="color-swatch" style="background:#e3f2fd" onclick="setBg('#e3f2fd', this)"></div>
+    <div class="color-swatch" style="background:#fff9c4" onclick="setBg('#fff9c4', this)"></div>
+    <div class="color-swatch" style="background:linear-gradient(135deg,#f8b4d9,#c4b5fd)" onclick="setBg('linear-gradient(135deg,#f8b4d9,#c4b5fd)', this)"></div>
+  </div>
+</div>
+
+<!-- Upload Panel -->
+<div class="panel" id="panel-upload">
+  <h3>Upload Photo</h3>
+  <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+    <div class="up-icon">📂</div>
+    Click to browse<br><small>JPG, PNG, GIF, WEBP</small>
+  </div>
+  <input type="file" id="fileInput" accept="image/*" multiple onchange="handleUpload(event)">
+
+  <div class="panel-section">Uploaded Photos</div>
+  <div id="thumbList" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+</div>
+
+<!-- Filter Panel -->
+<div class="panel" id="panel-filter">
+  <h3>Filters</h3>
+  <div class="filter-grid">
+    <div class="filter-btn active" onclick="setFilter('none', this)">
+      <div class="filter-dot" style="background:linear-gradient(135deg,#f9f,#99f)"></div>None
+    </div>
+    <div class="filter-btn" onclick="setFilter('grayscale(100%)', this)">
+      <div class="filter-dot" style="background:linear-gradient(135deg,#aaa,#444)"></div>B&W
+    </div>
+    <div class="filter-btn" onclick="setFilter('sepia(80%)', this)">
+      <div class="filter-dot" style="background:linear-gradient(135deg,#c8a060,#7a5030)"></div>Vintage
+    </div>
+    <div class="filter-btn" onclick="setFilter('hue-rotate(180deg) saturate(1.4)', this)">
+      <div class="filter-dot" style="background:linear-gradient(135deg,#60c8e0,#3060a0)"></div>Cool
+    </div>
+    <div class="filter-btn" onclick="setFilter('saturate(1.6) hue-rotate(340deg)', this)">
+      <div class="filter-dot" style="background:linear-gradient(135deg,#f96,#f33)"></div>Warm
+    </div>
+    <div class="filter-btn" onclick="setFilter('saturate(2) contrast(1.1)', this)">
+      <div class="filter-dot" style="background:linear-gradient(135deg,#f0f,#0f0)"></div>Vivid
+    </div>
+    <div class="filter-btn" onclick="setFilter('contrast(1.5) brightness(0.85)', this)">
+      <div class="filter-dot" style="background:linear-gradient(135deg,#222,#888)"></div>Drama
+    </div>
+    <div class="filter-btn" onclick="setFilter('brightness(1.15) saturate(0.7)', this)">
+      <div class="filter-dot" style="background:linear-gradient(135deg,#e8e0d8,#c8c0b8)"></div>Matte
+    </div>
+    <div class="filter-btn" onclick="setFilter('hue-rotate(90deg) saturate(1.3)', this)">
+      <div class="filter-dot" style="background:linear-gradient(135deg,#90f,#0df)"></div>Cyber
+    </div>
+    <div class="filter-btn" onclick="setFilter('sepia(40%) saturate(1.8) hue-rotate(320deg)', this)">
+      <div class="filter-dot" style="background:linear-gradient(135deg,#f9c,#f66)"></div>Rose
+    </div>
+  </div>
+
+  <div class="panel-section">Adjustments</div>
+  <label style="font-size:11px;color:var(--muted)">Brightness</label>
+  <input type="range" min="50" max="150" value="100" id="slBrightness" oninput="applyAdjust()">
+  <label style="font-size:11px;color:var(--muted)">Contrast</label>
+  <input type="range" min="50" max="150" value="100" id="slContrast" oninput="applyAdjust()">
+  <label style="font-size:11px;color:var(--muted)">Saturation</label>
+  <input type="range" min="0" max="200" value="100" id="slSaturate" oninput="applyAdjust()">
+</div>
+
+<!-- Sticker Panel -->
+<div class="panel" id="panel-sticker">
+  <h3>Stickers</h3>
+  <div class="panel-section">Faces & Fun</div>
+  <div class="sticker-grid">
+    <div class="sticker-item" onclick="addSticker('😍')">😍</div>
+    <div class="sticker-item" onclick="addSticker('🥰')">🥰</div>
+    <div class="sticker-item" onclick="addSticker('😎')">😎</div>
+    <div class="sticker-item" onclick="addSticker('🤩')">🤩</div>
+    <div class="sticker-item" onclick="addSticker('😂')">😂</div>
+    <div class="sticker-item" onclick="addSticker('🥳')">🥳</div>
+    <div class="sticker-item" onclick="addSticker('😜')">😜</div>
+    <div class="sticker-item" onclick="addSticker('🫶')">🫶</div>
+  </div>
+  <div class="panel-section">Nature</div>
+  <div class="sticker-grid">
+    <div class="sticker-item" onclick="addSticker('🌸')">🌸</div>
+    <div class="sticker-item" onclick="addSticker('🌻')">🌻</div>
+    <div class="sticker-item" onclick="addSticker('🦋')">🦋</div>
+    <div class="sticker-item" onclick="addSticker('⭐')">⭐</div>
+    <div class="sticker-item" onclick="addSticker('🌈')">🌈</div>
+    <div class="sticker-item" onclick="addSticker('🍀')">🍀</div>
+    <div class="sticker-item" onclick="addSticker('🌙')">🌙</div>
+    <div class="sticker-item" onclick="addSticker('☀️')">☀️</div>
+  </div>
+  <div class="panel-section">Objects</div>
+  <div class="sticker-grid">
+    <div class="sticker-item" onclick="addSticker('👑')">👑</div>
+    <div class="sticker-item" onclick="addSticker('💎')">💎</div>
+    <div class="sticker-item" onclick="addSticker('🎀')">🎀</div>
+    <div class="sticker-item" onclick="addSticker('🎵')">🎵</div>
+    <div class="sticker-item" onclick="addSticker('💕')">💕</div>
+    <div class="sticker-item" onclick="addSticker('🔥')">🔥</div>
+    <div class="sticker-item" onclick="addSticker('✨')">✨</div>
+    <div class="sticker-item" onclick="addSticker('🫧')">🫧</div>
+  </div>
+  <div class="panel-section">Sticker Size</div>
+  <input type="range" min="20" max="80" value="40" id="stickerSize">
+</div>
+
+<!-- Text Panel -->
+<div class="panel text-panel" id="panel-text">
+  <h3>Add Text</h3>
+  <label>Your text</label>
+  <textarea id="textInput" rows="2" placeholder="Type something..."></textarea>
+  <label>Font</label>
+  <select id="textFont">
+    <option value="'DM Sans', sans-serif">DM Sans</option>
+    <option value="'Playfair Display', serif">Playfair Display</option>
+    <option value="Georgia, serif">Georgia</option>
+    <option value="'Courier New', monospace">Courier New</option>
+    <option value="Impact, sans-serif">Impact</option>
+    <option value="'Comic Sans MS', cursive">Comic Sans</option>
+  </select>
+  <label>Size: <span id="fsVal">28</span>px</label>
+  <input type="range" min="12" max="80" value="28" id="textSize" oninput="document.getElementById('fsVal').textContent=this.value">
+  <label>Color</label>
+  <div class="color-row" id="textColors">
+    <div class="color-swatch selected" style="background:#ffffff" data-color="#ffffff" onclick="selectTextColor(this)"></div>
+    <div class="color-swatch" style="background:#000000" data-color="#000000" onclick="selectTextColor(this)"></div>
+    <div class="color-swatch" style="background:#e8a0c8" data-color="#e8a0c8" onclick="selectTextColor(this)"></div>
+    <div class="color-swatch" style="background:#f9c86a" data-color="#f9c86a" onclick="selectTextColor(this)"></div>
+    <div class="color-swatch" style="background:#a78bfa" data-color="#a78bfa" onclick="selectTextColor(this)"></div>
+    <div class="color-swatch" style="background:#6ee7b7" data-color="#6ee7b7" onclick="selectTextColor(this)"></div>
+    <div class="color-swatch" style="background:#f87171" data-color="#f87171" onclick="selectTextColor(this)"></div>
+    <div class="color-swatch" style="background:#38bdf8" data-color="#38bdf8" onclick="selectTextColor(this)"></div>
+  </div>
+  <label>Style</label>
+  <div style="display:flex;gap:6px;margin-bottom:10px;">
+    <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;" id="btnBold" onclick="toggleBold()"><b>B</b></button>
+    <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;" id="btnItalic" onclick="toggleItalic()"><i>I</i></button>
+  </div>
+  <button class="add-text-btn" onclick="addTextToCanvas()">+ Add to Canvas</button>
+</div>
+
+<!-- MAIN AREA -->
+<div class="main">
+  <div class="canvas-wrapper" id="canvasWrapper">
+    <canvas id="mainCanvas" width="560" height="420"></canvas>
+    <video id="cameraVideo" autoplay playsinline></video>
+    <div class="canvas-overlay" id="overlayLayer"></div>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="btn btn-ghost" onclick="toggleCamera()" id="camToggleBtn">📷 Start Camera</button>
+    <button class="cam-btn" onclick="capturePhoto()" id="snapBtn" title="Take Photo" style="display:none">📸</button>
+    <button class="btn btn-ghost" onclick="toggleCamera()" id="stopCamBtn" style="display:none">⏹ Stop Camera</button>
+    <button class="btn btn-primary" onclick="downloadCanvas()">⬇ Download</button>
+    <span class="status" id="statusTxt">Ready — choose a layout to start</span>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let currentLayout = 'single';
+let currentFilter = 'none';
+let currentBg = '#fff';
+let uploadedImages = [];
+let canvasImages = []; // {img, x, y, w, h, filter, bright, cont, sat}
+let textBold = false, textItalic = false;
+let selectedTextColor = '#ffffff';
+let cameraStream = null;
+let cameraActive = false;
+
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d');
+const overlay = document.getElementById('overlayLayer');
+const video = document.getElementById('cameraVideo');
+
+// ── LAYOUT ──
+const layouts = {
+  single:   { w: 560, h: 420, slots: [{x:20,y:20,w:520,h:380}] },
+  strip3:   { w: 220, h: 600, slots: [{x:10,y:10,w:200,h:180},{x:10,y:205,w:200,h:180},{x:10,y:400,w:200,h:180}] },
+  strip4:   { w: 220, h: 760, slots: [{x:10,y:10,w:200,h:170},{x:10,y:195,w:200,h:170},{x:10,y:380,w:200,h:170},{x:10,y:565,w:200,h:170}] },
+  grid4:    { w: 460, h: 460, slots: [{x:10,y:10,w:215,h:215},{x:235,y:10,w:215,h:215},{x:10,y:235,w:215,h:215},{x:235,y:235,w:215,h:215}] },
+  wide:     { w: 680, h: 260, slots: [{x:10,y:10,w:660,h:240}] },
+  polaroid: { w: 340, h: 400, slots: [{x:20,y:20,w:300,h:280}], polaroid:true },
+};
+
+function setLayout(name, el) {
+  currentLayout = name;
+  document.querySelectorAll('.layout-option').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  const L = layouts[name];
+  canvas.width = L.w; canvas.height = L.h;
+  redrawCanvas();
+  status('Layout: ' + el.textContent.trim());
+}
+
+function setBg(color, el) {
+  currentBg = color;
+  document.querySelectorAll('#panel-layout .color-swatch').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  redrawCanvas();
+}
+
+function redrawCanvas() {
+  const L = layouts[currentLayout];
+  // Background
+  if (currentBg.startsWith('linear')) {
+    const g = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    // parse simple gradient
+    const stops = currentBg.match(/#[0-9a-f]{3,6}/gi) || ['#fff','#eee'];
+    g.addColorStop(0, stops[0]);
+    g.addColorStop(1, stops[1] || stops[0]);
+    ctx.fillStyle = g;
+  } else {
+    ctx.fillStyle = currentBg;
+  }
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Polaroid border
+  if (L.polaroid) {
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#f0f0f0';
+    ctx.fillRect(14, 14, canvas.width-28, canvas.height-60);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(20, 20, canvas.width-40, canvas.height-80);
+    // Bottom text area
+    ctx.fillStyle = '#bbb';
+    ctx.font = '13px DM Sans';
+    ctx.textAlign = 'center';
+    ctx.fillText('pixiebooth', canvas.width/2, canvas.height - 20);
+  }
+
+  // Draw image slots (borders)
+  L.slots.forEach((s, i) => {
+    ctx.strokeStyle = 'rgba(200,190,220,0.3)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(s.x, s.y, s.w, s.h);
+    if (!uploadedImages[i]) {
+      ctx.fillStyle = 'rgba(200,190,220,0.07)';
+      ctx.fillRect(s.x, s.y, s.w, s.h);
+      ctx.fillStyle = 'rgba(200,190,220,0.4)';
+      ctx.font = '13px DM Sans';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Photo ${i+1}`, s.x + s.w/2, s.y + s.h/2);
+    }
+  });
+
+  // Draw uploaded images with filter
+  // FILTERS
+
+const brightness =
+document.getElementById(
+'slBrightness'
+).value;
+
+const contrast =
+document.getElementById(
+'slContrast'
+).value;
+
+const saturate =
+document.getElementById(
+'slSaturate'
+).value;
+
+// combine filters
+
+ctx.filter = `
+${currentFilter}
+brightness(${brightness}%)
+contrast(${contrast}%)
+saturate(${saturate}%)
+`;
+
+  uploadedImages.forEach((img, i) => {
+    const s = L.slots[i];
+    if (!s) return;
+    const drawn = coverFit(img, s.x, s.y, s.w, s.h);
+    ctx.drawImage(img, drawn.sx, drawn.sy, drawn.sw, drawn.sh, drawn.dx, drawn.dy, drawn.dw, drawn.dh);
+  });
+
+  ctx.filter = 'none';
+}
+
+function coverFit(img, dx, dy, dw, dh) {
+  const imgAR = img.naturalWidth / img.naturalHeight;
+  const boxAR = dw / dh;
+  let sw, sh, sx, sy;
+  if (imgAR > boxAR) {
+    sh = img.naturalHeight; sw = sh * boxAR;
+    sy = 0; sx = (img.naturalWidth - sw) / 2;
+  } else {
+    sw = img.naturalWidth; sh = sw / boxAR;
+    sx = 0; sy = (img.naturalHeight - sh) / 2;
+  }
+  return { sx, sy, sw, sh, dx, dy, dw, dh };
+}
+
+// ── PANEL NAVIGATION ──
+function openPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('open');
+  btn.classList.add('active');
+}
+
+// ── UPLOAD ──
+function handleUpload(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        uploadedImages.push(img);
+        addThumb(ev.target.result, uploadedImages.length - 1);
+        redrawCanvas();
+        status(`Photo ${uploadedImages.length} added`);
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+}
+
+function addThumb(src, idx) {
+  const d = document.createElement('div');
+  d.style.cssText = 'position:relative;cursor:pointer;';
+  const im = document.createElement('img');
+  im.src = src;
+  im.style.cssText = 'width:56px;height:56px;object-fit:cover;border-radius:6px;border:2px solid var(--border);';
+  im.onclick = () => { status(`Photo ${idx+1} placed in slot ${idx+1}`); redrawCanvas(); };
+  const rm = document.createElement('button');
+  rm.textContent = '×';
+  rm.style.cssText = 'position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:#e05;border:none;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;';
+  rm.onclick = () => { uploadedImages.splice(idx, 1); d.remove(); redrawCanvas(); };
+  d.appendChild(im); d.appendChild(rm);
+  document.getElementById('thumbList').appendChild(d);
+}
+
+// ── FILTERS ──
+function setFilter(f, el) {
+    currentFilter = f;
+
+    document
+    .querySelectorAll(
+        '.filter-btn'
+    )
+    .forEach(btn => {
+
+        btn.classList.remove(
+            'active'
+        );
+
+    });
+
+    el.classList.add(
+        'active'
+    );
+
+    redrawCanvas();
+
+    status(
+        'Filter applied '
+    );
+
+}
+function applyAdjust() { redrawCanvas(); }
+
+// ── STICKERS ──
+function addSticker(emoji) {
+  overlay.classList.add('active');
+  const size = document.getElementById('stickerSize').value + 'px';
+  const wrap = document.createElement('div');
+  wrap.className = 'draggable-item';
+  wrap.style.left = (Math.random() * (canvas.offsetWidth - 60) + 20) + 'px';
+  wrap.style.top  = (Math.random() * (canvas.offsetHeight - 60) + 20) + 'px';
+  wrap.style.fontSize = size;
+  wrap.innerHTML = emoji;
+  const del = document.createElement('button');
+  del.className = 'del-item'; del.textContent = '×';
+  del.onclick = () => wrap.remove();
+  wrap.appendChild(del);
+  makeDraggable(wrap);
+  overlay.appendChild(wrap);
+  status('Sticker added — drag to position');
+}
+
+// ── TEXT ──
+function selectTextColor(el) {
+  document.querySelectorAll('#textColors .color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedTextColor = el.dataset.color;
+}
+function toggleBold()   { textBold = !textBold;   document.getElementById('btnBold').style.background   = textBold ? 'rgba(232,160,200,0.2)' : ''; }
+function toggleItalic() { textItalic = !textItalic; document.getElementById('btnItalic').style.background = textItalic ? 'rgba(232,160,200,0.2)' : ''; }
+
+function addTextToCanvas() {
+  const txt = document.getElementById('textInput').value.trim();
+  if (!txt) { status('Enter some text first!'); return; }
+  overlay.classList.add('active');
+  const size = document.getElementById('textSize').value;
+  const font = document.getElementById('textFont').value;
+  const wrap = document.createElement('div');
+  wrap.className = 'draggable-item';
+  wrap.style.left = '50px'; wrap.style.top = '50px';
+  wrap.style.color = selectedTextColor;
+  wrap.style.fontSize = size + 'px';
+  wrap.style.fontFamily = font;
+  wrap.style.fontWeight = textBold ? 'bold' : 'normal';
+  wrap.style.fontStyle  = textItalic ? 'italic' : 'normal';
+  wrap.style.maxWidth = (canvas.offsetWidth - 60) + 'px';
+  wrap.style.textShadow = '0 1px 4px rgba(0,0,0,0.4)';
+  wrap.style.whiteSpace = 'pre-wrap';
+  wrap.style.lineHeight = '1.2';
+  wrap.textContent = txt;
+  const del = document.createElement('button');
+  del.className = 'del-item'; del.textContent = '×';
+  del.onclick = () => wrap.remove();
+  wrap.appendChild(del);
+  makeDraggable(wrap);
+  overlay.appendChild(wrap);
+  status('Text added — drag to position');
+}
+
+// ── DRAG ──
+function makeDraggable(el) {
+  let ox, oy, startX, startY;
+  el.addEventListener('mousedown', e => {
+    if (e.target.classList.contains('del-item')) return;
+    e.preventDefault();
+    const r = el.getBoundingClientRect();
+    const pr = overlay.getBoundingClientRect();
+    ox = e.clientX - r.left; oy = e.clientY - r.top;
+    startX = e.clientX; startY = e.clientY;
+    function onMove(ev) {
+      const pr2 = overlay.getBoundingClientRect();
+      el.style.left = (ev.clientX - pr2.left - ox) + 'px';
+      el.style.top  = (ev.clientY - pr2.top  - oy) + 'px';
+    }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+  // Touch support
+  el.addEventListener('touchstart', e => {
+    if (e.target.classList.contains('del-item')) return;
+    const t = e.touches[0];
+    const r = el.getBoundingClientRect();
+    ox = t.clientX - r.left; oy = t.clientY - r.top;
+    function onMove(ev) {
+      const t2 = ev.touches[0];
+      const pr2 = overlay.getBoundingClientRect();
+      el.style.left = (t2.clientX - pr2.left - ox) + 'px';
+      el.style.top  = (t2.clientY - pr2.top  - oy) + 'px';
+    }
+    function onUp() {
+      el.removeEventListener('touchmove', onMove);
+      el.removeEventListener('touchend', onUp);
+    }
+    el.addEventListener('touchmove', onMove, {passive:true});
+    el.addEventListener('touchend', onUp);
+  }, {passive:true});
+}
+
+// ── CAMERA ──
+async function toggleCamera() {
+  if (!cameraActive) {
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode:'user' }, audio: false });
+      video.srcObject = cameraStream;
+      video.style.display = 'block';
+      document.getElementById('snapBtn').style.display = 'flex';
+      document.getElementById('stopCamBtn').style.display = 'inline-flex';
+      document.getElementById('camToggleBtn').style.display = 'none';
+      cameraActive = true;
+      status('Camera live — smile! 📸');
+    } catch(err) {
+      status('Camera error: ' + err.message);
+    }
+  } else {
+    stopCamera();
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+  video.style.display = 'none';
+  document.getElementById('snapBtn').style.display = 'none';
+  document.getElementById('stopCamBtn').style.display = 'none';
+  document.getElementById('camToggleBtn').style.display = 'inline-flex';
+  cameraActive = false;
+  status('Camera stopped');
+}
+
+function capturePhoto() {
+  if (!cameraActive) return;
+  const tmpCanvas = document.createElement('canvas');
+  tmpCanvas.width = video.videoWidth;
+  tmpCanvas.height = video.videoHeight;
+  tmpCanvas.getContext('2d').drawImage(video, 0, 0);
+  const dataURL = tmpCanvas.toDataURL('image/png');
+  const img = new Image();
+  img.onload = () => {
+    uploadedImages.push(img);
+    addThumb(dataURL, uploadedImages.length - 1);
+    redrawCanvas();
+    // Flash effect
+    const flash = document.createElement('div');
+    flash.style.cssText = 'position:absolute;inset:0;background:white;opacity:0.9;pointer-events:none;transition:opacity 0.3s;z-index:99;';
+    document.getElementById('canvasWrapper').appendChild(flash);
+    setTimeout(() => { flash.style.opacity = 0; setTimeout(() => flash.remove(), 300); }, 50);
+    status('📸 Photo captured!');
+  };
+  img.src = dataURL;
+}
+
+// ── DOWNLOAD ──
+function downloadCanvas() {
+  // Merge overlay onto canvas
+  const tmpCanvas = document.createElement('canvas');
+  tmpCanvas.width = canvas.width;
+  tmpCanvas.height = canvas.height;
+  const tctx = tmpCanvas.getContext('2d');
+  tctx.drawImage(canvas, 0, 0);
+
+  // Draw overlay items
+  const items = overlay.querySelectorAll('.draggable-item');
+  const overlayRect = overlay.getBoundingClientRect();
+  const canvRect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / canvRect.width;
+  const scaleY = canvas.height / canvRect.height;
+
+  items.forEach(item => {
+    const r = item.getBoundingClientRect();
+    const x = (r.left - canvRect.left) * scaleX;
+    const y = (r.top  - canvRect.top)  * scaleY;
+    const fs = parseFloat(getComputedStyle(item).fontSize) * scaleX;
+    tctx.font = `${item.style.fontStyle || 'normal'} ${item.style.fontWeight || 'normal'} ${fs}px ${item.style.fontFamily || 'sans-serif'}`;
+    tctx.fillStyle = item.style.color || '#fff';
+    tctx.shadowColor = 'rgba(0,0,0,0.4)';
+    tctx.shadowBlur = 4;
+    // only text content (strip del button text)
+    const text = item.childNodes[0].textContent || '';
+    tctx.fillText(text, x, y + fs);
+  });
+
+  const a = document.createElement('a');
+  a.download = 'snapbooth-' + Date.now() + '.png';
+  a.href = tmpCanvas.toDataURL();
+  a.click();
+  status('Downloaded! 🎉');
+}
+
+// ── CLEAR ──
+function clearCanvas() {
+  uploadedImages = [];
+  document.getElementById('thumbList').innerHTML = '';
+  overlay.innerHTML = '';
+  overlay.classList.remove('active');
+  currentFilter = 'none';
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.filter-btn').classList.add('active');
+  document.getElementById('slBrightness').value = 100;
+  document.getElementById('slContrast').value = 100;
+  document.getElementById('slSaturate').value = 100;
+  redrawCanvas();
+  status('Canvas cleared');
+}
+
+// ── STATUS ──
+function status(msg) {
+  document.getElementById('statusTxt').textContent = msg;
+}
+
+// Init
+redrawCanvas();
+status();
+</script>
+</body>
+</html>

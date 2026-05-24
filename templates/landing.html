@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PixiBooth</title>
+
+    <style>
+        .hero {
+            position: relative;
+            z-index: 2; /* text above */
+        }
+        .info-section{
+
+            margin-top:350px;
+
+            background-image:
+            url('/static/images/about-bg.jpg');
+
+            background-size:cover;
+
+            background-position:center;
+
+            background-repeat:no-repeat;
+
+            min-height:500px;
+
+            display:flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            border-radius:
+            40px 40px 0 0;
+        }
+
+
+        .info-container{
+
+            position:relative;
+
+            z-index:2;
+
+            width:90%;
+
+            display:flex;
+
+            justify-content:space-between;
+
+            gap:80px;
+        }
+
+        .about-box,
+        .contact-box{
+
+            width:45%;
+        }
+
+        .about-box h2,
+        .contact-box h2{
+
+            font-family:
+            'AstonScript',
+            cursive;
+
+            font-size:55px;
+
+            color:#5A4632;
+
+            margin-bottom:20px;
+        }
+
+        .about-box p,
+        .contact-box p{
+
+            font-size:20px;
+
+            line-height:1.8;
+
+            color:#5A4632;
+        }
+        .about-section,
+        .contact-section{
+
+            text-align:center;
+
+            padding:
+            80px 40px;
+
+            margin-top:70px;
+        }
+
+        .about-section h2,
+        .contact-section h2{
+
+            font-size:42px;
+
+            color:#5A4632;
+
+            margin-bottom:20px;
+
+            font-family:
+            'AstonScript',
+            cursive;
+        }
+
+        .about-section p,
+        .contact-section p{
+
+            font-size:20px;
+
+            max-width:700px;
+
+            margin:auto;
+
+            line-height:1.8;
+
+            color:#5A4632;
+        }
+        .side-img {
+            position: absolute;
+            top: 2cm;
+            right: 3cm;
+            width: 7cm;
+
+            border-radius: 3px;
+
+            box-shadow: 0px 10px 20px rgba(0,0,0,0.15);
+
+            z-index: 1; /* image below text */
+        }
+        @font-face {
+            font-family: 'AstonScript';
+            src: url('/static/fonts/aston_script.ttf') format('truetype');
+        }
+        .hero-title {
+            font-family: 'AstonScript', cursive;
+            text-transform: lowercase;
+            font-size: 70px;
+            letter-spacing: 1px;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating-img {
+            width: 280px;
+            margin-top: 30px;
+            border-radius: 15px;
+
+            animation: float 3s ease-in-out infinite;
+
+            box-shadow: 0px 20px 30px rgba(0,0,0,0.2);
+}
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #fff3b0; /* butter yellow */
+            color: #333;
+        }
+        
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items:center;
+            padding: 20px 50px;
+            font-size: 20px;
+            z-index: 10;
+            position: relative;
+        }
+        .nav-links{
+
+            display:flex;
+
+            gap:40px;
+
+            align-items:center;
+        }
+
+
+        .nav-links a:hover{
+
+            color:#8CBFE6;
+
+            transform:
+            translateY(-2px);
+        }
+        .logo {
+            font-weight: bold;
+        }
+
+        .hero {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .hero h1 {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            max-width: 500px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        .btn {
+            margin-top: 30px;
+            padding: 15px 30px;
+            font-size: 18px;
+            background: white;
+            color: #333;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #ddd;
+            transform: scale(1.05);
+        }
+        .card h3 {
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            margin-top: 100px;
+            text-align: center;
+            padding: 20px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+
+    <div class="logo">
+        pixibooth
+    </div>
+</div>
+<img src="/static/images/photo.jpg" class="side-img">
+
+<!-- HERO SECTION -->
+<div class="hero">
+    <h1 class="hero-title">create your own photobooth</h1>
+
+    <p>
+        Design aesthetic photobooth strips with your own style.
+        Add stickers, customize layouts, and download instantly.
+    </p>
+
+    <a href="/layouts">
+        <button class="btn">START</button>
+    </a>
+</div>
+
+<!-- ABOUT US -->
+
+<!-- ABOUT + CONTACT SECTION -->
+
+<section class="info-section">
+
+
+    <div class="info-container">
+
+        <!-- LEFT -->
+        <div class="about-box">
+
+            <h2>
+                About Us
+            </h2>
+
+            <p>
+                PixiBooth helps you
+                create aesthetic
+                photobooth memories
+                in your own style.
+                Choose layouts,
+                stickers, filters,
+                and customize your
+                photobooth strip
+                instantly.
+            </p>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="contact-box">
+
+            <h2>
+                Contact Us
+            </h2>
+
+            <p>
+                Email:
+                pixibooth@gmail.com
+            </p>
+
+            <p>
+                Instagram:
+                @pixibooth
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+<!-- FOOTER -->
+<div class="footer">
+ <!-- CONTACT US -->
+
+
+</div>
+
+</body>
+</html>
