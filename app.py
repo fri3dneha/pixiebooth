@@ -33,83 +33,9 @@ def fit_image(img, target_w, target_h):
 def landing():
     return render_template('landing.html')
 
-
-@app.route('/editor')
-def editor():
-    return render_template('index.html')
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
 @app.route('/layouts')
 def layouts():
     return render_template('layouts.html')
-
-@app.route('/upload', methods=['POST'])
-def upload():
-    files = request.files.getlist('photos')
-    layout = request.form.get('layout')
-    border_color = request.form.get('border_color') or "#ffffff"
-
-    images = []
-
-    for file in files:
-        path = os.path.join(UPLOAD_FOLDER, file.filename)
-        file.save(path)
-        images.append(Image.open(path))
-
-    # 🎯 Layout definitions
-    if layout == "strip3":
-        template = [(50, 50, 300, 400), (50, 470, 300, 400), (50, 890, 300, 400)]
-        canvas_size = (400, 1350)
-
-    elif layout == "square4":
-        template = [
-            (50, 50, 300, 400), (370, 50, 300, 400),
-            (50, 470, 300, 400), (370, 470, 300, 400)
-        ]
-        canvas_size = (720, 950)
-
-    elif layout == "vertical4":
-        template = [
-            (50, 50, 300, 400), (50, 470, 300, 400),
-            (50, 890, 300, 400), (50, 1310, 300, 400)
-        ]
-        canvas_size = (400, 1800)
-
-    elif layout == "grid6":
-        template = [
-            (50, 50, 300, 400), (370, 50, 300, 400),
-            (50, 470, 300, 400), (370, 470, 300, 400),
-            (50, 890, 300, 400), (370, 890, 300, 400)
-        ]
-        canvas_size = (720, 1350)
-
-    elif layout == "grid8":
-        template = [
-            (50, 50, 300, 400), (370, 50, 300, 400),
-            (50, 470, 300, 400), (370, 470, 300, 400),
-            (50, 890, 300, 400), (370, 890, 300, 400),
-            (50, 1310, 300, 400), (370, 1310, 300, 400)
-        ]
-        canvas_size = (720, 1800)
-
-    else:
-        return "Invalid layout"
-
-    images = images[:len(template)]
-
-    canvas = Image.new("RGB", canvas_size, border_color)
-
-    for img, box in zip(images, template):
-        x, y, w, h = box
-        img = fit_image(img, w, h)
-        canvas.paste(img, (x, y))
-
-    canvas.save(OUTPUT_PATH)
-
-    return render_template('index.html', image_url='/static/output.png')
 
 
 if __name__ == '__main__':
